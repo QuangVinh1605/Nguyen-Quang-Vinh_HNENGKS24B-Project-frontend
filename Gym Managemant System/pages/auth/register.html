@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+        .label {
+            color: rgba(55, 65, 81, 1);
+            font-weight: 500;
+        }
+        @media (max-width: 834px) {
+            .container {
+                max-width: 40%;
+                height:50%;
+                margin: 20px auto;
+            }
+            
+        }
+        @media (max-width: 375px) {
+            .container {
+                max-width: 90%;
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Đăng ký tài khoản</h2>
+        <form id="registerForm">
+            <div class="label">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" class="form-control" id="fullname">
+                <div class="error" id="fullnameError"></div>
+                <br>
+            </div>
+            <div class="label">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email">
+                <div class="error" id="emailError"></div>
+            </div>
+            <br>
+            <div class="label">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" class="form-control" id="password">
+                <div class="error" id="passwordError"></div>
+            </div>
+            <br>
+            <div class="label">
+                <label class="form-label">Xác nhận mật khẩu</label>
+                <input type="password" class="form-control" id="confirmPassword">
+                <div class="error" id="confirmPasswordError"></div>
+            </div>
+            <br>
+            <button type="button" class="btn btn-primary w-100" onclick="validateForm()">Đăng ký</button>
+        </form>
+        <p class="text-center mt-3">Đã có tài khoản? <a href="./login.html" style="text-decoration: none;">Đăng nhập ngay</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll("input").forEach(input => {
+            input.addEventListener("focus", function() {
+                document.getElementById(this.id + "Error").textContent = "";
+            });
+        });
+
+        function validateForm() {
+            let validate = true;
+            document.querySelectorAll(".error").forEach(el => el.textContent = "");
+    
+            const fullname = document.getElementById("fullname").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser")) || [];
+    
+            if (fullname === "") {
+                document.getElementById("fullnameError").textContent = "Họ và tên không được để trống";
+                validate = false;
+            }
+            if (email === "") {
+                document.getElementById("emailError").textContent = "Email không được để trống";
+                validate = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                document.getElementById("emailError").textContent = "Email không đúng định dạng";
+                validate = false;
+            }
+            if (JSON.parse(localStorage.getItem("users"))?.some(user => user.email === email) && loggedInUser.email !== email) {
+                document.getElementById("emailError").textContent = "Email đã được đăng ký";
+                validate = false;
+            }
+            if (password === "") {
+                document.getElementById("passwordError").textContent = "Mật khẩu không được để trống";
+                validate = false;
+            } else if (password.length < 8) {
+                document.getElementById("passwordError").textContent = "Mật khẩu tối thiểu 8 ký tự";
+                validate = false;
+            } else if (password.includes(" ")) {
+                document.getElementById("passwordError").textContent = "Mật khẩu không được chứa khoảng trắng";
+                validate = false;
+            }
+            if (confirmPassword === "") {
+                document.getElementById("confirmPasswordError").textContent = "Mật khẩu xác nhận không được để trống";
+                validate = false;
+            } else if (confirmPassword !== password) {
+                document.getElementById("confirmPasswordError").textContent = "Mật khẩu không trùng khớp";
+                validate = false;
+            }
+            if (validate) {
+                const users = JSON.parse(localStorage.getItem("users")) || [];
+                users.push({ fullname, email, password });
+                localStorage.setItem("users", JSON.stringify(users));
+                localStorage.setItem("loggedInUser", JSON.stringify({ fullname, email, password }));
+                if (email === "admin@gym.com") {
+                localStorage.setItem("isAdmin", "true");
+                window.location.href = "../lead/admin_page.html";
+
+            } else {
+                localStorage.setItem("isAdmin", "false");
+               window.location.href = "../admins/dashboarduser.html";
+            }
+            }
+        }
+    </script>
+    
+</body>
+</html>

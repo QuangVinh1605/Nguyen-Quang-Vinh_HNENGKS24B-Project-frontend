@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+        .sidebar h4 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .sidebar a {
+            color: white;
+            padding: 15px 20px;
+            display: block;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .content h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .stats-container {
+            margin-bottom: 30px;
+        }
+        .stats-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: 5px solid;
+            margin-bottom: 20px; /* Tăng khoảng cách giữa các hàng */
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        .stats-card h5 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: 600;
+        }
+        .stats-card p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        /* Màu sắc động cho từng lớp học */
+        .stats-card.gym {
+            border-left-color: #0d6efd;
+        }
+        .stats-card.gym p {
+            color: #0d6efd;
+        }
+        .stats-card.yoga {
+            border-left-color: #059669;
+        }
+        .stats-card.yoga p {
+            color: #059669;
+        }
+        .stats-card.zumba {
+            border-left-color: #7C3AED;
+        }
+        .stats-card.zumba p {
+            color: #7C3AED;
+        }
+        .stats-card.default {
+            border-left-color: #6c757d;
+        }
+        .stats-card.default p {
+            color: #6c757d;
+        }
+        .table-responsive {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+        .action-link {
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-right: 10px;
+            padding: 5px;
+            display: inline-block;
+        }
+        .action-edit {
+            color: #007bff;
+        }
+        .action-edit:hover {
+            color: #0056b3;
+        }
+        .action-delete {
+            color: #dc3545;
+        }
+        .action-delete:hover {
+            color: #a71d2a;
+        }
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .form-control, .form-select {
+            font-size: 0.9rem;
+        }
+        .filter-row .col-12 {
+            margin-bottom: 15px;
+        }
+        .pagination {
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .pagination .page-link {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+        .pagination .ellipsis {
+            padding: 8px 12px;
+            color: #6c757d;
+        }
+
+        /* Tối ưu cho tablet và mobile */
+        @media (max-width: 1024px) {
+            .content h2 {
+                font-size: 1.25rem;
+            }
+            .stats-card h5 {
+                font-size: 1rem;
+            }
+            .stats-card p {
+                font-size: 1.2rem;
+            }
+            .table th, .table td {
+                font-size: 0.85rem;
+            }
+            .action-link {
+                font-size: 0.85rem;
+                padding: 8px;
+            }
+            .pagination .page-link {
+                font-size: 0.85rem;
+                padding: 6px 10px;
+            }
+            .pagination .ellipsis {
+                padding: 6px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .content {
+                margin-left: 0;
+            }
+            .filter-row .col-12 {
+                margin-bottom: 10px;
+            }
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table th, .table td {
+                font-size: 0.8rem;
+                padding: 8px;
+            }
+            .table th:nth-child(4), .table td:nth-child(4),
+            .table th:nth-child(5), .table td:nth-child(5) {
+                display: none;
+            }
+            .action-link {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+            .pagination .page-link {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .pagination .ellipsis {
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4>ADMIN DASHBOARD</h4>
+        <a href="./admin_page.html">Quản lý lịch</a>
+        <a href="./service_management.html">Quản lý dịch vụ</a>
+        <a href="../admins/dasboardadmin.html">Trang chủ</a>
+        <a href="../admins/dashboard.html" style="color:red">Đăng xuất</a>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div class="content">
+        <h2>Quản lý lịch tập</h2>
+
+        <!-- Thống kê số lịch đặt -->
+        <div class="row mt-4 stats-container" id="statsContainer">
+            <!-- Thống kê sẽ được render động -->
+        </div>
+
+        <h2 class="mt-5">BỘ LỌC</h2>
+        <!-- Bộ lọc -->
+        <div class="row mb-3 filter-row">
+            <div class="col-4">
+                <label for="classFilter" class="form-label">Lớp học</label>
+                <select id="classFilter" class="form-select" onchange="applyFilters()">
+                    <option value="">Tất cả</option>
+                    <!-- Lớp học sẽ được render động từ localStorage -->
+                </select>
+            </div>
+            <div class="col-4">
+                <label for="dateFilter" class="form-label">mm/dd/yyyy</label>
+                <input type="date" id="dateFilter" class="form-control" onchange="applyFilters()">
+            </div>
+            <div class="col-4">
+                <label for="searchInput" class="form-label">Tìm theo email</label>
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm theo email" oninput="applyFilters()">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Lớp học</th>
+                        <th>Ngày tập</th>
+                        <th>Khung giờ</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="classList"></tbody>
+            </table>
+        </div>
+
+        <!-- Phân trang -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+    </div>
+
+    <!-- Modal Chỉnh sửa lịch tập -->
+    <div class="modal fade" id="editScheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chỉnh sửa lịch tập</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editClass" class="form-label">Lớp học:</label>
+                        <select id="editClass" class="form-select">
+                            <!-- Lớp học sẽ được render động từ localStorage -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDate" class="form-label">Ngày tập:</label>
+                        <input type="date" id="editDate" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTime" class="form-label">Khung giờ:</label>
+                        <select id="editTime" class="form-select">
+                            <option value="01:00 - 03:00">01:00 - 03:00</option>
+                            <option value="07:00 - 09:00">07:00 - 09:00</option>
+                            <option value="09:00 - 11:00">09:00 - 11:00</option>
+                            <option value="14:00 - 16:00">14:00 - 16:00</option>
+                            <option value="16:00 - 18:00">16:00 - 18:00</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Họ tên:</label>
+                        <input type="text" id="editName" class="form-control" placeholder="Nhập họ tên">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email:</label>
+                        <input type="email" id="editEmail" class="form-control" placeholder="Nhập email">
+                    </div>
+                    <div id="editErrorMsg" class="text-danger"></div>
+                    <input type="hidden" id="editUserEmail">
+                    <input type="hidden" id="editIndex">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSchedule()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác nhận xóa -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa lịch tập này?</p>
+                    <input type="hidden" id="deleteUserEmail">
+                    <input type="hidden" id="deleteIndex">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteSchedule()">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        // Lấy dữ liệu từ localStorage
+        let userSchedules = JSON.parse(localStorage.getItem("userSchedules")) || {};
+        const services = JSON.parse(localStorage.getItem("services")) || [];
+          const isAdmin = localStorage.getItem("isAdmin");
+
+if (isAdmin !== "true") {
+    // Không phải admin -> chuyển hướng
+    window.location.href = "../auth/login.html";
+}
+        // Phân trang
+        const itemsPerPage = 5;
+        let currentPage = 1;
+        let filteredSchedules = [];
+        const maxVisiblePages = 5; // Số lượng nút trang tối đa hiển thị
+
+        // Tính toán số lịch đặt cho từng lớp học
+        function calculateStats() {
+            const statsContainer = document.getElementById("statsContainer");
+            statsContainer.innerHTML = "";
+
+            if (services.length === 0) {
+                statsContainer.innerHTML = `<div class="col-12"><p class="text-center">Chưa có lớp học nào để thống kê.</p></div>`;
+                return;
+            }
+
+            // Tính số lịch đặt cho từng lớp học
+            const classCounts = {};
+            services.forEach(service => {
+                classCounts[service.name] = 0;
+            });
+
+            for (let userEmail in userSchedules) {
+                const schedules = userSchedules[userEmail];
+                schedules.forEach(schedule => {
+                    if (classCounts.hasOwnProperty(schedule.class)) {
+                        classCounts[schedule.class]++;
+                    }
+                });
+            }
+
+            // Mảng màu sắc cho các lớp học
+            const colors = [
+                { className: "gym", borderColor: "#0d6efd", textColor: "#0d6efd" },
+                { className: "yoga", borderColor: "#059669", textColor: "#059669" },
+                { className: "zumba", borderColor: "#7C3AED", textColor: "#7C3AED" },
+                { className: "default", borderColor: "#6c757d", textColor: "#6c757d" }
+            ];
+
+            // Render thống kê
+            services.forEach((service, index) => {
+                const count = classCounts[service.name];
+                // Chọn màu dựa trên tên lớp học (nếu có trong mảng colors) hoặc dùng màu mặc định
+                const classNameLower = service.name.toLowerCase();
+                const color = colors.find(c => classNameLower.includes(c.className)) || colors.find(c => c.className === "default");
+                const statCard = `
+                    <div class="col-md-4">
+                        <div class="stats-card ${color.className}">
+                            <h5>Tổng số lịch ${service.name}</h5>
+                            <p>${count}</p>
+                        </div>
+                    </div>
+                `;
+                statsContainer.innerHTML += statCard;
+            });
+        }
+
+        // Render danh sách lớp học vào thẻ select (cho bộ lọc và modal chỉnh sửa)
+        function renderClassSelect(selectElementId, selectedClass = null) {
+            const selectElement = document.getElementById(selectElementId);
+            selectElement.innerHTML = selectElementId === "classFilter" ? `<option value="">Tất cả</option>` : "";
+
+            if (services.length === 0) {
+                if (selectElementId !== "classFilter") {
+                    selectElement.innerHTML = `<option value="">Chưa có lớp học nào</option>`;
+                    selectElement.disabled = true;
+                }
+            } else {
+                selectElement.disabled = false;
+                services.forEach(service => {
+                    const option = document.createElement("option");
+                    option.value = service.name;
+                    option.text = service.name;
+                    if (selectedClass && service.name === selectedClass) {
+                        option.selected = true;
+                    }
+                    selectElement.appendChild(option);
+                });
+            }
+        }
+
+        // Hiển thị danh sách lớp học với bộ lọc và phân trang
+        function renderClassList() {
+            let table = document.getElementById("classList");
+            table.innerHTML = "";
+
+            // Lấy giá trị bộ lọc
+            const classFilter = document.getElementById("classFilter").value;
+            const dateFilter = document.getElementById("dateFilter").value;
+            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+
+            let allSchedules = [];
+            // Thu thập tất cả lịch từ mọi người dùng
+            for (let userEmail in userSchedules) {
+                const schedules = userSchedules[userEmail];
+                schedules.forEach((schedule, index) => {
+                    allSchedules.push({ userEmail, schedule, index });
+                });
+            }
+
+            // Áp dụng bộ lọc
+            filteredSchedules = allSchedules.filter(item => {
+                const { schedule } = item;
+                let matchesClass = true, matchesDate = true, matchesSearch = true;
+
+                // Lọc theo lớp học
+                if (classFilter) {
+                    matchesClass = schedule.class === classFilter;
+                }
+
+                // Lọc theo ngày tập
+                if (dateFilter) {
+                    matchesDate = schedule.date === dateFilter;
+                }
+
+                // Tìm kiếm theo email
+                if (searchInput) {
+                    matchesSearch = schedule.email.toLowerCase().includes(searchInput);
+                }
+
+                return matchesClass && matchesDate && matchesSearch;
+            });
+
+            if (filteredSchedules.length === 0) {
+                table.innerHTML = `<tr><td colspan="6" class="text-center">Không tìm thấy lịch tập nào</td></tr>`;
+                renderPagination(0);
+                return;
+            }
+
+            // Phân trang
+            const totalItems = filteredSchedules.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedSchedules = filteredSchedules.slice(startIndex, endIndex);
+
+            // Hiển thị danh sách đã lọc và phân trang
+            paginatedSchedules.forEach(item => {
+                const { userEmail, schedule, index } = item;
+                let row = `<tr>
+                    <td>${schedule.class}</td>
+                    <td>${schedule.date}</td>
+                    <td>${schedule.time}</td>
+                    <td>${schedule.name}</td>
+                    <td>${schedule.email}</td>
+                    <td>
+                        <a href="#" class="action-link action-edit" onclick="showEditModal('${userEmail}', ${index}); return false;">Sửa</a>
+                        <a href="#" class="action-link action-delete" onclick="showDeleteConfirm('${userEmail}', ${index}); return false;">Xóa</a>
+                    </td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+
+            // Hiển thị phân trang
+            renderPagination(totalPages);
+
+            // Cuộn lên đầu bảng
+            document.querySelector(".table-responsive").scrollIntoView({ behavior: "smooth" });
+        }
+
+        // Hiển thị phân trang nâng cấp
+        function renderPagination(totalPages) {
+            let pagination = document.getElementById("pagination");
+            pagination.innerHTML = "";
+
+            if (totalPages <= 1) return;
+
+            // Nút "Trước"
+            pagination.innerHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">
+                        <i class="bi bi-chevron-left"></i> previous
+                    </a>
+                </li>
+            `;
+
+            // Tính toán các trang hiển thị
+            let startPage, endPage;
+            const halfVisible = Math.floor(maxVisiblePages / 2);
+
+            if (totalPages <= maxVisiblePages) {
+                startPage = 1;
+                endPage = totalPages;
+            } else {
+                if (currentPage <= halfVisible + 1) {
+                    startPage = 1;
+                    endPage = maxVisiblePages;
+                } else if (currentPage + halfVisible >= totalPages) {
+                    startPage = totalPages - maxVisiblePages + 1;
+                    endPage = totalPages;
+                } else {
+                    startPage = currentPage - halfVisible;
+                    endPage = currentPage + halfVisible;
+                }
+            }
+
+            // Hiển thị trang đầu tiên và dấu "..." nếu cần
+            if (startPage > 1) {
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="changePage(1); return false;">1</a>
+                    </li>
+                `;
+                if (startPage > 2) {
+                    pagination.innerHTML += `<li class="page-item disabled"><span class="page-link ellipsis">...</span></li>`;
+                }
+            }
+
+            // Hiển thị các trang trong khoảng startPage đến endPage
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.innerHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                    </li>
+                `;
+            }
+
+            // Hiển thị trang cuối cùng và dấu "..." nếu cần
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagination.innerHTML += `<li class="page-item disabled"><span class="page-link ellipsis">...</span></li>`;
+                }
+                pagination.innerHTML += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="changePage(${totalPages}); return false;">${totalPages}</a>
+                    </li>
+                `;
+            }
+
+            // Nút "Sau"
+            pagination.innerHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">
+                        next <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+        }
+
+        // Chuyển trang
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredSchedules.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderClassList();
+        }
+
+        // Áp dụng bộ lọc khi có thay đổi
+        function applyFilters() {
+            currentPage = 1; // Reset về trang 1 khi áp dụng bộ lọc
+            renderClassList();
+            calculateStats(); // Cập nhật thống kê khi áp dụng bộ lọc
+        }
+
+        // Hiển thị modal chỉnh sửa lịch tập
+        function showEditModal(userEmail, index) {
+            document.getElementById("editErrorMsg").innerText = "";
+            document.getElementById("editUserEmail").value = userEmail;
+            document.getElementById("editIndex").value = index;
+
+            const schedule = userSchedules[userEmail][index];
+            renderClassSelect("editClass", schedule.class);
+            document.getElementById("editDate").value = schedule.date;
+            document.getElementById("editTime").value = schedule.time;
+            document.getElementById("editName").value = schedule.name;
+            document.getElementById("editEmail").value = schedule.email;
+
+            let modal = new bootstrap.Modal(document.getElementById("editScheduleModal"));
+            modal.show();
+        }
+
+        // Lưu lịch tập đã chỉnh sửa
+        function saveSchedule() {
+            const userEmail = document.getElementById("editUserEmail").value;
+            const index = document.getElementById("editIndex").value;
+            const editClass = document.getElementById("editClass").value;
+            const editDate = document.getElementById("editDate").value;
+            const editTime = document.getElementById("editTime").value;
+            const editName = document.getElementById("editName").value.trim();
+            const editEmail = document.getElementById("editEmail").value.trim();
+
+            // Validate
+            let errorMsg = "";
+            if (!editClass || !editDate || !editTime || !editName || !editEmail) {
+                errorMsg = "Vui lòng nhập đầy đủ thông tin!";
+            } else if (!isValidEmail(editEmail)) {
+                errorMsg = "Email không hợp lệ!";
+            }
+
+            if (errorMsg) {
+                document.getElementById("editErrorMsg").innerText = errorMsg;
+                return;
+            }
+
+            // Cập nhật lịch tập
+            userSchedules[userEmail][index] = {
+                class: editClass,
+                date: editDate,
+                time: editTime,
+                name: editName,
+                email: editEmail
+            };
+
+            localStorage.setItem("userSchedules", JSON.stringify(userSchedules));
+            renderClassList();
+            calculateStats(); // Cập nhật thống kê sau khi chỉnh sửa
+            bootstrap.Modal.getInstance(document.getElementById("editScheduleModal")).hide();
+        }
+
+        // Kiểm tra email hợp lệ
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Hiển thị modal xác nhận xóa
+        function showDeleteConfirm(userEmail, index) {
+            document.getElementById("deleteUserEmail").value = userEmail;
+            document.getElementById("deleteIndex").value = index;
+            let modal = new bootstrap.Modal(document.getElementById("deleteConfirmModal"));
+            modal.show();
+        }
+
+        // Xóa lịch tập
+        function deleteSchedule() {
+            const userEmail = document.getElementById("deleteUserEmail").value;
+            const index = document.getElementById("deleteIndex").value;
+
+            if (userEmail && index !== null) {
+                userSchedules[userEmail].splice(index, 1);
+                if (userSchedules[userEmail].length === 0) {
+                    delete userSchedules[userEmail];
+                }
+                localStorage.setItem("userSchedules", JSON.stringify(userSchedules));
+
+                // Cập nhật filteredSchedules sau khi xóa
+                const allSchedules = [];
+                for (let email in userSchedules) {
+                    const schedules = userSchedules[email];
+                    schedules.forEach((schedule, idx) => {
+                        allSchedules.push({ userEmail: email, schedule, index: idx });
+                    });
+                }
+
+                const classFilter = document.getElementById("classFilter").value;
+                const dateFilter = document.getElementById("dateFilter").value;
+                const searchInput = document.getElementById("searchInput").value.toLowerCase();
+
+                filteredSchedules = allSchedules.filter(item => {
+                    const { schedule } = item;
+                    let matchesClass = true, matchesDate = true, matchesSearch = true;
+
+                    if (classFilter) matchesClass = schedule.class === classFilter;
+                    if (dateFilter) matchesDate = schedule.date === dateFilter;
+                    if (searchInput) matchesSearch = schedule.email.toLowerCase().includes(searchInput);
+
+                    return matchesClass && matchesDate && matchesSearch;
+                });
+
+                // Tính tổng số trang sau khi xóa
+                const totalItems = filteredSchedules.length;
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+                // Kiểm tra số lượng lịch tập trên trang hiện tại
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const currentPageItems = filteredSchedules.slice(startIndex, endIndex).length;
+
+                // Nếu trang hiện tại không còn lịch tập nào (trang trống) và không phải trang đầu tiên
+                if (currentPageItems === 0 && currentPage > 1) {
+                    currentPage -= 1; // Chuyển về trang trước đó
+                } else if (currentPage > totalPages && totalPages > 0) {
+                    currentPage = totalPages; // Nếu trang hiện tại lớn hơn tổng số trang, chuyển về trang cuối
+                }
+
+                renderClassList();
+                calculateStats(); // Cập nhật thống kê sau khi xóa
+            }
+            bootstrap.Modal.getInstance(document.getElementById("deleteConfirmModal")).hide();
+        }
+
+        // Khởi tạo khi trang được tải
+        document.addEventListener("DOMContentLoaded", function() {
+            // Render danh sách lớp học cho bộ lọc và modal chỉnh sửa
+            renderClassSelect("classFilter");
+            renderClassSelect("editClass");
+            calculateStats(); // Tính toán và render thống kê
+            renderClassList();
+        });
+    </script>
+</body>
+</html>

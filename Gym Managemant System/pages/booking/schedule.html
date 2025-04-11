@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý lịch tập</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .box h2 {
+            font-size: 1.5rem;
+        }
+        .table-responsive {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+        .action-link {
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-right: 10px;
+            padding: 5px;
+            display: inline-block;
+        }
+        .action-edit {
+            color: #007bff;
+        }
+        .action-edit:hover {
+            color: #0056b3;
+        }
+        .action-delete {
+            color: #dc3545;
+        }
+        .action-delete:hover {
+            color: #a71d2a;
+        }
+        .modal-backdrop.show {
+            opacity: 0.5;
+        }
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        #errorMsg, #editErrorMsg {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .pagination {
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        /* Tối ưu cho tablet và mobile */
+        @media (max-width: 1024px) {
+            .box h2 {
+                font-size: 1.25rem;
+            }
+            .box .btn {
+                font-size: 0.875rem;
+                padding: 8px 12px;
+            }
+            .table th, .table td {
+                font-size: 0.85rem;
+            }
+            .action-link {
+                font-size: 0.85rem;
+                padding: 8px;
+            }
+            .modal-dialog {
+                margin: 10px;
+            }
+            .modal-body {
+                padding: 15px;
+            }
+            .modal-footer .btn {
+                font-size: 0.875rem;
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table th, .table td {
+                font-size: 0.8rem;
+                padding: 8px;
+            }
+            .table th:nth-child(4), .table td:nth-child(4),
+            .table th:nth-child(5), .table td:nth-child(5) {
+                display: none;
+            }
+            .action-link {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+            .box h2 {
+                font-size: 1.1rem;
+            }
+            .box .btn {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .pagination {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .page-item .page-link {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .modal-body {
+                padding: 10px;
+            }
+            .modal-footer .btn {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .form-label {
+                font-size: 0.85rem;
+            }
+            .form-control, .form-select {
+                font-size: 0.85rem;
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">GYM MANAGEMENT</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="../admins/dashboarduser.html">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#">Lịch tập</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Nội dung chính -->
+    <div class="container mt-4">
+        <div class="box">
+            <h2>Quản lý lịch tập</h2>
+            <button class="btn btn-primary" onclick="openModal()">
+                <i class="bi"></i> Đặt lịch mới
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Lớp học</th>
+                        <th>Ngày tập</th>
+                        <th>Khung giờ</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="classList"></tbody>
+            </table>
+        </div>
+
+        <!-- Phân trang -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+    </div>
+
+    <!-- Modal Đặt lịch/Sửa lịch -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modalTitle">Đặt lịch mới</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Lớp học:</label>
+                        <select id="classSelect" class="form-select">
+                            <!-- Lớp học sẽ được render động từ localStorage -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ngày tập:</label>
+                        <input type="date" id="dateInput" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Khung giờ:</label>
+                        <select id="timeSlot" class="form-select">
+                            <option>01:00 - 03:00</option>
+                            <option>07:00 - 09:00</option>
+                            <option>09:00 - 11:00</option>
+                            <option>14:00 - 16:00</option>
+                            <option>16:00 - 18:00</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Họ tên:</label>
+                        <input type="text" id="nameInput" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email:</label>
+                        <input type="email" id="emailInput" class="form-control" readonly>
+                    </div>
+                    <div id="errorMsg" class="text-danger"></div>
+                    <input type="hidden" id="editIndex">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button class="btn btn-primary" onclick="saveSchedule()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác nhận xóa -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa lịch tập này?</p>
+                    <input type="hidden" id="deleteIndex">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteSchedule()">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Lấy dữ liệu từ localStorage
+        let userSchedules = JSON.parse(localStorage.getItem("userSchedules")) || {};
+
+        // Lấy thông tin người dùng hiện tại từ localStorage
+        const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser")) || {};
+        const currentUserEmail = loggedInUser.email || "guest@example.com";
+
+        // Phân trang
+        const itemsPerPage = 5;
+        let currentPage = 1;
+        let filteredSchedules = [];
+
+        // Hiển thị danh sách lớp học với phân trang (chỉ hiển thị lịch của người dùng hiện tại)
+        function renderClassList() {
+            let table = document.getElementById("classList");
+            table.innerHTML = "";
+
+            // Chỉ lấy lịch của người dùng hiện tại
+            const userSchedule = userSchedules[currentUserEmail] || [];
+            filteredSchedules = userSchedule.map((schedule, index) => ({
+                userEmail: currentUserEmail,
+                schedule,
+                index
+            }));
+
+            if (filteredSchedules.length === 0) {
+                table.innerHTML = `<tr><td colspan="6" class="text-center">Chưa có lịch tập nào</td></tr>`;
+                renderPagination(0);
+                return;
+            }
+
+            // Phân trang
+            const totalItems = filteredSchedules.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedSchedules = filteredSchedules.slice(startIndex, endIndex);
+
+            // Hiển thị danh sách đã phân trang
+            paginatedSchedules.forEach(item => {
+                const { schedule, index } = item;
+                let row = `<tr>
+                    <td>${schedule.class}</td>
+                    <td>${schedule.date}</td>
+                    <td>${schedule.time}</td>
+                    <td>${schedule.name}</td>
+                    <td>${schedule.email}</td>
+                    <td>
+                        <a href="#" class="action-link action-edit" onclick="openModal(${index}); return false;">
+                            Sửa
+                        </a>
+                        <a href="#" class="action-link action-delete" onclick="showDeleteConfirm(${index}); return false;">
+                            Xóa
+                        </a>
+                    </td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+
+            // Hiển thị phân trang
+            renderPagination(totalPages);
+        }
+
+        // Hiển thị phân trang
+        function renderPagination(totalPages) {
+            let pagination = document.getElementById("pagination");
+            pagination.innerHTML = "";
+
+            if (totalPages <= 1) return;
+
+            pagination.innerHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                let pageItem = `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                    </li>`;
+                pagination.innerHTML += pageItem;
+            }
+
+            pagination.innerHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+        }
+
+        // Chuyển trang
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredSchedules.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderClassList();
+        }
+
+        // Render danh sách lớp học vào thẻ select
+        function renderClassSelect(selectedClass = null) {
+            const classSelect = document.getElementById("classSelect");
+            const services = JSON.parse(localStorage.getItem("services")) || [];
+
+            classSelect.innerHTML = "";
+
+            if (services.length === 0) {
+                classSelect.innerHTML = `<option value="">Chưa có lớp học nào</option>`;
+                classSelect.disabled = true;
+                document.getElementById("errorMsg").innerText = "Không có lớp học nào để đặt lịch. Vui lòng thêm lớp học trước.";
+                document.querySelector("#bookingModal .btn-primary").disabled = true;
+            } else {
+                classSelect.disabled = false;
+                document.querySelector("#bookingModal .btn-primary").disabled = false;
+                services.forEach(service => {
+                    const option = document.createElement("option");
+                    option.value = service.name;
+                    option.text = service.name;
+                    if (selectedClass && service.name === selectedClass) {
+                        option.selected = true;
+                    }
+                    classSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Mở modal đặt lịch/sửa lịch
+        function openModal(editIndex = null) {
+            document.getElementById("errorMsg").innerText = "";
+            document.getElementById("modalTitle").innerText = editIndex === null ? "Đặt lịch mới" : "Chỉnh sửa lịch";
+            document.getElementById("editIndex").value = editIndex !== null ? editIndex : "";
+
+            // Render danh sách lớp học từ localStorage
+            if (editIndex !== null) {
+                const schedule = userSchedules[currentUserEmail][editIndex];
+                renderClassSelect(schedule.class); // Chọn lớp học hiện tại khi chỉnh sửa
+                document.getElementById("dateInput").value = schedule.date;
+                document.getElementById("timeSlot").value = schedule.time;
+                document.getElementById("nameInput").value = schedule.name;
+                document.getElementById("emailInput").value = schedule.email;
+            } else {
+                renderClassSelect(); // Không chọn lớp học mặc định khi đặt lịch mới
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const offset = tomorrow.getTimezoneOffset() * 60000;
+                const localTomorrow = new Date(tomorrow - offset);
+                document.getElementById("dateInput").value = localTomorrow.toISOString().split('T')[0];
+                document.getElementById("timeSlot").value = "07:00 - 09:00";
+                document.getElementById("nameInput").value = loggedInUser.fullname || "";
+                document.getElementById("emailInput").value = currentUserEmail;
+            }
+
+            document.getElementById("dateInput").min = new Date().toISOString().split("T")[0];
+
+            let modal = new bootstrap.Modal(document.getElementById("bookingModal"));
+            modal.show();
+        }
+
+        // Kiểm tra lịch tập trùng lặp
+        function checkDuplicateSchedule(classValue, dateValue, timeValue, editIndex = null) {
+            const userSchedule = userSchedules[currentUserEmail] || [];
+            return userSchedule.some((schedule, index) => {
+                if (editIndex !== null && index === parseInt(editIndex)) {
+                    return false;
+                }
+                return (
+                    schedule.class === classValue &&
+                    schedule.date === dateValue &&
+                    schedule.time === timeValue
+                );
+            });
+        }
+
+        // Lưu lịch tập
+        function saveSchedule() {
+            const editIndex = document.getElementById("editIndex").value;
+            const classValue = document.getElementById("classSelect").value;
+            const dateValue = document.getElementById("dateInput").value;
+            const timeValue = document.getElementById("timeSlot").value;
+            const nameValue = document.getElementById("nameInput").value.trim();
+            const emailValue = document.getElementById("emailInput").value.trim();
+
+            let errorMsg = "";
+            const selectedDate = new Date(dateValue);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Validate thông tin cơ bản
+            if (!classValue || !dateValue || !timeValue || !nameValue || !emailValue) {
+                errorMsg = "Vui lòng nhập đầy đủ thông tin!";
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+                errorMsg = "Email không hợp lệ!";
+            } else if (selectedDate <= today) {
+                errorMsg = "Không thể chọn ngày trong quá khứ hoặc hôm nay!";
+            } else if (emailValue !== currentUserEmail) {
+                errorMsg = "Email phải trùng với email của bạn!";
+            } else {
+                // Kiểm tra trùng lặp lịch tập
+                if (checkDuplicateSchedule(classValue, dateValue, timeValue, editIndex)) {
+                    errorMsg = "Lịch tập này đã tồn tại! Vui lòng chọn lớp học, ngày hoặc khung giờ khác.";
+                }
+            }
+
+            if (errorMsg) {
+                document.getElementById("errorMsg").innerText = errorMsg;
+                return;
+            }
+
+            // Khởi tạo danh sách lịch tập cho người dùng nếu chưa có
+            if (!userSchedules[currentUserEmail]) {
+                userSchedules[currentUserEmail] = [];
+            }
+
+            const newSchedule = {
+                class: classValue,
+                date: dateValue,
+                time: timeValue,
+                name: nameValue,
+                email: emailValue
+            };
+
+            if (editIndex !== "") {
+                userSchedules[currentUserEmail][editIndex] = newSchedule;
+            } else {
+                userSchedules[currentUserEmail].push(newSchedule);
+            }
+
+            localStorage.setItem("userSchedules", JSON.stringify(userSchedules));
+            renderClassList();
+            bootstrap.Modal.getInstance(document.getElementById("bookingModal")).hide();
+        }
+
+        // Hiển thị modal xác nhận xóa
+        function showDeleteConfirm(index) {
+            document.getElementById("deleteIndex").value = index;
+            let modal = new bootstrap.Modal(document.getElementById("deleteConfirmModal"));
+            modal.show();
+        }
+
+        // Xóa lịch tập
+        function deleteSchedule() {
+            const index = document.getElementById("deleteIndex").value;
+
+            if (index !== null) {
+                userSchedules[currentUserEmail].splice(index, 1);
+                if (userSchedules[currentUserEmail].length === 0) {
+                    delete userSchedules[currentUserEmail];
+                }
+                localStorage.setItem("userSchedules", JSON.stringify(userSchedules));
+
+                const userSchedule = userSchedules[currentUserEmail] || [];
+                filteredSchedules = userSchedule.map((schedule, idx) => ({
+                    userEmail: currentUserEmail,
+                    schedule,
+                    index: idx
+                }));
+
+                const totalItems = filteredSchedules.length;
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const currentPageItems = filteredSchedules.slice(startIndex, endIndex).length;
+
+                if (currentPageItems === 0 && currentPage > 1) {
+                    currentPage -= 1;
+                } else if (currentPage > totalPages && totalPages > 0) {
+                    currentPage = totalPages;
+                }
+
+                renderClassList();
+            }
+            bootstrap.Modal.getInstance(document.getElementById("deleteConfirmModal")).hide();
+        }
+
+        // Khởi tạo khi trang được tải
+        document.addEventListener("DOMContentLoaded", function() {
+            renderClassList();
+        });
+    </script>
+</body>
+</html>

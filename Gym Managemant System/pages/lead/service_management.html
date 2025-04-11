@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý dịch vụ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+        .sidebar h4 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .sidebar a {
+            color: white;
+            padding: 15px 20px;
+            display: block;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .content h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .table-responsive {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+        .service-image {
+            width: 100px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .action-link {
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-right: 10px;
+            padding: 5px;
+            display: inline-block;
+        }
+        .action-edit {
+            color: #007bff;
+        }
+        .action-edit:hover {
+            color: #0056b3;
+        }
+        .action-delete {
+            color: #dc3545;
+        }
+        .action-delete:hover {
+            color: #a71d2a;
+        }
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .form-control {
+            font-size: 0.9rem;
+        }
+
+        /* Tối ưu cho tablet và mobile */
+        @media (max-width: 1024px) {
+            .content h2 {
+                font-size: 1.25rem;
+            }
+            .box .btn {
+                font-size: 0.875rem;
+                padding: 8px 12px;
+            }
+            .table th, .table td {
+                font-size: 0.85rem;
+            }
+            .service-image {
+                width: 80px;
+                height: 48px;
+            }
+            .action-link {
+                font-size: 0.85rem;
+                padding: 8px;
+            }
+            .modal-dialog {
+                margin: 10px;
+            }
+            .modal-body {
+                padding: 15px;
+            }
+            .modal-footer .btn {
+                font-size: 0.875rem;
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .content {
+                margin-left: 0;
+            }
+            .content h2 {
+                font-size: 1.1rem;
+            }
+            .box .btn {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table th, .table td {
+                font-size: 0.8rem;
+                padding: 8px;
+            }
+            .table th:nth-child(2), .table td:nth-child(2) {
+                display: none; /* Ẩn cột "Mô tả" trên mobile */
+            }
+            .service-image {
+                width: 60px;
+                height: 36px;
+            }
+            .action-link {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+            .modal-body {
+                padding: 10px;
+            }
+            .modal-footer .btn {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            .form-label {
+                font-size: 0.85rem;
+            }
+            .form-control {
+                font-size: 0.85rem;
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4>ADMIN DASHBOARD</h4>
+        <a href="admin_page.html">Quản lý lịch</a>
+        <a href="service_management.html">Quản lý dịch vụ</a>
+        <a href="../admins/dasboardadmin.html">Trang chủ</a>
+        <a href="../admins/dashboard.html" style="color:red">Đăng xuất</a>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div class="content">
+        <div class="box">
+            <h2>QUẢN LÝ DỊCH VỤ</h2>
+            <button class="btn btn-primary" onclick="openServiceModal()">
+                <i class="bi bi-plus"></i> Thêm dịch vụ mới
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tên dịch vụ</th>
+                        <th>Mô tả</th>
+                        <th>Hình ảnh</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="serviceList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Thêm/Chỉnh sửa dịch vụ -->
+    <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="serviceModalTitle">Thêm dịch vụ mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="serviceName" class="form-label">Tên dịch vụ:</label>
+                        <input type="text" id="serviceName" class="form-control" placeholder="Nhập tên dịch vụ">
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceDescription" class="form-label">Mô tả:</label>
+                        <textarea id="serviceDescription" class="form-control" placeholder="Nhập mô tả"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceImageUrl" class="form-label">URL hình ảnh:</label>
+                        <input type="url" id="serviceImageUrl" class="form-control" placeholder="Nhập URL hình ảnh">
+                    </div>
+                    <div id="errorMsg" class="text-danger"></div>
+                    <input type="hidden" id="editServiceId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveService()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xác nhận xóa -->
+    <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa dịch vụ này?</p>
+                    <input type="hidden" id="deleteServiceId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteService()">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Lấy dữ liệu từ localStorage
+        let services = JSON.parse(localStorage.getItem("services")) 
+
+        // Hiển thị danh sách dịch vụ
+        function renderServiceList() {
+            let table = document.getElementById("serviceList");
+            table.innerHTML = "";
+
+            if (services.length === 0) {
+                table.innerHTML = `<tr><td colspan="4" class="text-center">Chưa có dịch vụ nào</td></tr>`;
+                return;
+            }
+
+            services.forEach(service => {
+                let row = `<tr>
+                    <td>${service.name}</td>
+                    <td>${service.description}</td>
+                    <td><img src="${service.imageUrl}" alt="${service.name}" class="service-image" onerror="this.src='https://via.placeholder.com/100x60?text=Image+Not+Found'"></td>
+                    <td>
+                        <a href="#" class="action-link action-edit" onclick="openServiceModal(${service.id}); return false;">Sửa</a>
+                        <a href="#" class="action-link action-delete" onclick="showDeleteServiceConfirm(${service.id}); return false;">Xóa</a>
+                    </td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        // Mở modal thêm/chỉnh sửa dịch vụ
+        function openServiceModal(serviceId = null) {
+            document.getElementById("errorMsg").innerText = "";
+            document.getElementById("serviceModalTitle").innerText = serviceId ? "Chỉnh sửa dịch vụ" : "Thêm dịch vụ mới";
+            document.getElementById("editServiceId").value = serviceId || "";
+
+            if (serviceId) {
+                const service = services.find(s => s.id == serviceId);
+                if (service) {
+                    document.getElementById("serviceName").value = service.name;
+                    document.getElementById("serviceDescription").value = service.description;
+                    document.getElementById("serviceImageUrl").value = service.imageUrl;
+                }
+            } else {
+                document.getElementById("serviceName").value = "";
+                document.getElementById("serviceDescription").value = "";
+                document.getElementById("serviceImageUrl").value = "";
+            }
+
+            let modal = new bootstrap.Modal(document.getElementById("serviceModal"));
+            modal.show();
+        }
+
+        // Lưu dịch vụ
+        function saveService() {
+            const serviceName = document.getElementById("serviceName").value.trim();
+            const serviceDescription = document.getElementById("serviceDescription").value.trim();
+            const serviceImageUrl = document.getElementById("serviceImageUrl").value.trim();
+            const editServiceId = document.getElementById("editServiceId").value;
+
+            // Validate
+            let errorMsg = "";
+            if (!serviceName || !serviceDescription || !serviceImageUrl) {
+                errorMsg = "Vui lòng nhập đầy đủ thông tin!";
+            } else if (!isValidUrl(serviceImageUrl)) {
+                errorMsg = "URL hình ảnh không hợp lệ!";
+            } else if (services.some(s => s.name === serviceName && (!editServiceId || s.id != editServiceId))) {
+                errorMsg = "Tên dịch vụ đã tồn tại!";
+            }
+
+            if (errorMsg) {
+                document.getElementById("errorMsg").innerText = errorMsg;
+                return;
+            }
+
+            if (editServiceId) {
+                // Cập nhật dịch vụ
+                const service = services.find(s => s.id == editServiceId);
+                if (service) {
+                    service.name = serviceName;
+                    service.description = serviceDescription;
+                    service.imageUrl = serviceImageUrl;
+                }
+            } else {
+                // Thêm dịch vụ mới
+                const newId = services.length > 0 ? Math.max(...services.map(s => s.id)) + 1 : 1;
+                services.push({
+                    id: newId,
+                    name: serviceName,
+                    description: serviceDescription,
+                    imageUrl: serviceImageUrl
+                });
+            }
+
+            localStorage.setItem("services", JSON.stringify(services));
+            renderServiceList();
+            bootstrap.Modal.getInstance(document.getElementById("serviceModal")).hide();
+        }
+
+        // Kiểm tra URL hợp lệ
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Hiển thị modal xác nhận xóa
+        function showDeleteServiceConfirm(serviceId) {
+            document.getElementById("deleteServiceId").value = serviceId;
+            let modal = new bootstrap.Modal(document.getElementById("deleteServiceModal"));
+            modal.show();
+        }
+
+        // Xóa dịch vụ
+        function deleteService() {
+            const serviceId = document.getElementById("deleteServiceId").value;
+            services = services.filter(s => s.id != serviceId);
+            localStorage.setItem("services", JSON.stringify(services));
+            renderServiceList();
+            bootstrap.Modal.getInstance(document.getElementById("deleteServiceModal")).hide();
+        }
+
+        // Khởi tạo khi trang được tải
+        document.addEventListener("DOMContentLoaded", function() {
+            renderServiceList();
+        });
+    </script>
+</body>
+</html>
